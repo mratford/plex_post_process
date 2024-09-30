@@ -1,0 +1,69 @@
+#! /opt/homebrew/opt/python@3.12/libexec/bin/python
+
+import argparse
+import datetime
+import logging
+import subprocess
+from pathlib import Path
+
+
+def scan_type(file):
+    command = ["/opt/homebrew/bin/mediainfo", file]
+    process = subprocess.run(command, capture_output=True)
+    for line in (line.decode("utf8") for line in process.stdout.splitlines()):
+        if line.startswith("Scan type"):
+            return line.split(":")[1].split()
+
+    return None
+
+
+if __name__ == "__main__":
+    logger = logging.getLogger("plex_post_process.py")
+    logger.setLevel(logging.DEBUG)
+    file_handler = logging.FileHandler(
+        "/Users/mike/src/plex_post_process/plex_post_process.log"
+    )
+    file_handler.setLevel(logging.DEBUG)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    parser = argparse.ArgumentParser(prog="plex_post_process")
+    parser.add_argument("filename")
+    args = parser.parse_args()
+
+    source = Path(args.filename)
+    dest = source.parent / (source.stem + ".mp4")
+
+    logger.info(str(source))
+    logger.info(f"Start: {datetime.datetime.now().isoformat()}")
+
+    try:
+        if source.suffix == ".ts" and scan_type(source) != "Progressive":
+            command = ["/opt/homebrew/bin/mediainfo", source]
+            process = subprocess.run(command, capture_output=True)
+
+            logger.info("Converting")
+            command = [
+                "/opt/homebrew/bin/HandbrakeCLI",
+                "-i",
+                source,
+                "-o",
+                dest,
+                "--comb-detect",
+                "--decomb",
+            ]
+            process = subprocess.run(command, capture_output=True)
+            if process.returncode == 0:
+                source.unlink()
+                logger.info("Decomb completed successfully")
+                logger.info(f"Wrote to {dest}")
+            else:
+                logger.error(f"Decomb failed: {process.stderr}")
+        else:
+            logger.info("Nothing to do")
+    except Exception as e:
+        logger.error(f"Failed with exception: {e}")
+
+    logger.info(f"Finished: {datetime.datetime.now().isoformat()}\n")
