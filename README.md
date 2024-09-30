@@ -1,0 +1,1 @@
+Script to remove interlacing from Plex DVR recordings where required, e.g. Match of the Day.
