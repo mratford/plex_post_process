@@ -20,9 +20,7 @@ def scan_type(file):
 if __name__ == "__main__":
     logger = logging.getLogger("plex_post_process.py")
     logger.setLevel(logging.DEBUG)
-    file_handler = logging.FileHandler(
-        "/Users/mike/src/plex_post_process/plex_post_process.log"
-    )
+    file_handler = logging.FileHandler(Path.home() / "log" / "plex_post_process.log")
     file_handler.setLevel(logging.DEBUG)
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
@@ -34,13 +32,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     source = Path(args.filename)
-    dest = source.parent / (source.stem + ".mp4")
+    dest = source.parent / (source.stem + ".mkv")
 
     logger.info(str(source))
     logger.info(f"Start: {datetime.datetime.now().isoformat()}")
 
     try:
-        if source.suffix == ".ts" and scan_type(source) != "Progressive":
+        if source.suffix == ".ts":  # scan_type(source) != "Progressive":
             command = ["/opt/homebrew/bin/mediainfo", source]
             process = subprocess.run(command, capture_output=True)
 
@@ -53,6 +51,8 @@ if __name__ == "__main__":
                 dest,
                 "--comb-detect",
                 "--decomb",
+                "--subtitle",
+                "1,2,3,4,5,6",
             ]
             process = subprocess.run(command, capture_output=True)
             if process.returncode == 0:
