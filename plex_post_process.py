@@ -12,7 +12,7 @@ def scan_type(file):
     process = subprocess.run(command, capture_output=True)
     for line in (line.decode("utf8") for line in process.stdout.splitlines()):
         if line.startswith("Scan type"):
-            return line.split(":")[1].split()
+            return line.split(":")[1].strip()
 
     return None
 
