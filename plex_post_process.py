@@ -39,9 +39,6 @@ if __name__ == "__main__":
 
     try:
         if source.suffix == ".ts" and scan_type(source) != "Progressive":
-            command = ["/opt/homebrew/bin/mediainfo", source]
-            process = subprocess.run(command, capture_output=True)
-
             logger.info("Converting")
             command = [
                 "/opt/homebrew/bin/HandbrakeCLI",
