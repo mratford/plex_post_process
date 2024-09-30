@@ -38,7 +38,7 @@ if __name__ == "__main__":
     logger.info(f"Start: {datetime.datetime.now().isoformat()}")
 
     try:
-        if source.suffix == ".ts":  # scan_type(source) != "Progressive":
+        if source.suffix == ".ts" and scan_type(source) != "Progressive":
             command = ["/opt/homebrew/bin/mediainfo", source]
             process = subprocess.run(command, capture_output=True)
 
