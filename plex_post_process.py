@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 
-interlaced = ["^Match of the Day"]
+INTERLACED = ["^Match of the Day"]
 
 
 def scan_type(file):
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     try:
         st = scan_type(source)
-        if source.suffix == ".ts" and any(re.search(i, source.name) for i in interlaced):
+        if source.suffix == ".ts" and any(re.search(i, source.name) for i in INTERLACED):
             logger.info(f"Converting file identified as {st}")
             command = [
                 "/opt/homebrew/bin/HandbrakeCLI",
