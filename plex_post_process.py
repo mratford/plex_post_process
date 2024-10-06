@@ -4,7 +4,11 @@ import argparse
 import datetime
 import logging
 import subprocess
+import re
 from pathlib import Path
+
+
+interlaced = ["^Match of the Day"]
 
 
 def scan_type(file):
@@ -38,8 +42,9 @@ if __name__ == "__main__":
     logger.info(f"Start: {datetime.datetime.now().isoformat()}")
 
     try:
-        if source.suffix == ".ts" and scan_type(source) != "Progressive":
-            logger.info("Converting")
+        st = scan_type(source)
+        if source.suffix == ".ts" and any(re.search(i, source.name) for i in interlaced):
+            logger.info(f"Converting file identified as {st}")
             command = [
                 "/opt/homebrew/bin/HandbrakeCLI",
                 "-i",
@@ -53,13 +58,13 @@ if __name__ == "__main__":
             ]
             process = subprocess.run(command, capture_output=True)
             if process.returncode == 0:
-                source.unlink()
+                # source.unlink()
                 logger.info("Decomb completed successfully")
                 logger.info(f"Wrote to {dest}")
             else:
                 logger.error(f"Decomb failed: {process.stderr}")
         else:
-            logger.info("Nothing to do")
+            logger.info(f"Nothing to do: file identified as {st}")
     except Exception as e:
         logger.error(f"Failed with exception: {e}")
 
