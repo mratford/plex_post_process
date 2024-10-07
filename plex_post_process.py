@@ -58,7 +58,7 @@ if __name__ == "__main__":
             ]
             process = subprocess.run(command, capture_output=True)
             if process.returncode == 0:
-                # source.unlink()
+                source.unlink()
                 logger.info("Decomb completed successfully")
                 logger.info(f"Wrote to {dest}")
             else:
